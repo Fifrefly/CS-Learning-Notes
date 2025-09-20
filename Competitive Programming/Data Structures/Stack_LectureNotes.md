@@ -1,7 +1,11 @@
-## Stack
-A stack is a linear data structure that follows the Last In First Out (LIFO) principle. This means that the last element added to the stack will be the first one to be removed.
-### Array Implementation
-#### Top
+# 栈（Stack）
+
+栈是一种遵循后进先出（LIFO, Last In First Out）原则的线性数据结构：最后入栈的元素最先出栈。
+
+## 数组实现（Array Implementation）
+
+### Top
+```cpp
 template <typename Type>
 Type Stack<Type>::top() const {
     if(empty()){
@@ -9,7 +13,10 @@ Type Stack<Type>::top() const {
     }
     return array[stack_size-1];
 }
-#### Pop
+```
+
+### Pop
+```cpp
 template <typename Type>
 Type Stack<Type>::pop(){
     if(empty()){
@@ -18,7 +25,10 @@ Type Stack<Type>::pop(){
     --stack_size;
     return array[stack_size];
 }
-#### Push
+```
+
+### Push
+```cpp
 template <typename Type>
 void Stack<Type>::push(Type const &obj){
     if(stack_size==array_capacity){
@@ -27,13 +37,59 @@ void Stack<Type>::push(Type const &obj){
     array[stack_size]=obj;
     ++stack_size;
 }
-### Array Capacity
-To state the average run time, the amortized time is:
-if n operations requires Θ(f(n)) time, then the amortized time per operation is Θ(f(n)/n).
-Therefore, if inserting n objects requires:
-Θ(n^2) time, then the amortized time per operation is Θ(n).
-Θ(n) time, then the amortized time per operation is Θ(1).
-Case1: If the array is full,we increase the capacity by 1 each time.
-Suppose we insert k objects
-- The pushing of the kth object requires k-1 copies.
-Case2: If the array is full, we double the capacity.
+```
+
+## 链表实现（Linked List Implementation）
+
+### Top
+```cpp
+template <typename Type>
+Type Stack<Type>::top() const {
+    if(empty()){
+        throw underflow;
+    }
+    return head->data;
+}
+```
+
+### Pop
+```cpp
+template <typename Type>
+Type Stack<Type>::pop(){
+    if(empty()){
+        throw underflow;
+    }
+    Node *old=head;
+    Type obj=head->data;
+    head=head->next;
+    delete old;
+    --stack_size;
+    return obj;
+}
+```
+
+### Push
+```cpp
+template <typename Type>
+void Stack<Type>::push(Type const &obj){
+    Node *newNode=new Node;
+    newNode->data=obj;
+    newNode->next=head;
+    head=newNode;
+    ++stack_size;
+}
+```
+
+## 扩容策略与摊还时间复杂度（Array Capacity & Amortized Time）
+
+摊还时间（Amortized time）定义：若 n 次操作总耗时为 Θ(f(n))，则每次操作的摊还时间为 Θ(f(n)/n)。
+
+当数组实现的栈空间耗尽时，需要扩容；扩容策略对性能影响显著。
+
+- 情况一：按常数增量扩容（例如每次 +1）
+  - 总拷贝次数：0 + 1 + 2 + ... + (n - 1) = Θ(n²)
+  - 摊还时间：Θ(n²) / n = Θ(n)，低效
+
+- 情况二：按倍率扩容（例如容量翻倍）
+  - 总拷贝次数：在 1, 2, 4, 8, ..., 2^k < n 处扩容，总拷贝约为 2n - 1 = Θ(n)
+  - 摊还时间：Θ(n) / n = Θ(1)，高效
